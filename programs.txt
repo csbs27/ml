@@ -1,0 +1,107 @@
+#barplot
+library(ggplot2)
+ggplot(mtcars, aes(x = factor(cyl))) +
+  geom_bar(fill = "steelblue", color = "black") +
+  labs(title = "Cars by Cylinder", x = "Cylinders", y = "Count") +
+  theme_minimal()
+  
+  
+  
+#boxplot
+library(ggplot2)
+ggplot(mtcars, aes(x = factor(gear), y = mpg)) +
+  geom_boxplot(fill = "steelblue", color = "black") +
+  labs(title = "MPG by Gear", x = "Gears", y = "MPG") +
+  theme_minimal()
+  
+  
+  
+#histogram
+library(ggplot2)
+ggplot(mtcars, aes(x = mpg)) + 
+  geom_histogram(binwidth = 2, fill = "steelblue", color = "black") + 
+  labs(title = "Distribution of MPG", x = "MPG", y = "Count") + 
+  theme_minimal()
+  
+  
+  
+#scatterplot
+library(ggplot2)
+ggplot(mtcars, aes(x = wt, y = mpg)) + 
+  geom_point(color = "steelblue", size = 3) + 
+  labs(title = "MPG vs Weight", x = "Weight", y = "MPG") + 
+  theme_minimal()
+  
+#DecisionTree
+library(caret)
+library(mlbench)
+library(rpart)      
+library(rpart.plot)
+data(Soybean)
+df <- na.omit(Soybean)
+set.seed(123)
+idx <- createDataPartition(df$Class, p = 0.7, list = FALSE)
+train <- df[idx, ]
+test  <- df[-idx, ]
+train$Class <- droplevels(train$Class)
+test$Class  <- droplevels(test$Class)
+model <- rpart(Class ~ ., data = train) 
+rpart.plot(model)                       
+preds <- predict(model, test, type = "class") 
+confusionMatrix(preds, test$Class)
+
+
+#RandomForest
+library(caret)
+library(mlbench)
+library(randomForest) 
+data(Soybean)
+df <- na.omit(Soybean)
+set.seed(123)
+idx <- createDataPartition(df$Class, p = 0.7, list = FALSE)
+train <- df[idx, ]
+test  <- df[-idx, ]
+train$Class <- droplevels(train$Class)
+test$Class  <- droplevels(test$Class)
+model <- randomForest(Class ~ ., data = train, ntree = 500)
+preds <- predict(model, test)
+confusionMatrix(preds, test$Class)
+
+
+#SVM
+library(caret)
+library(mlbench)
+library(e1071)   
+data(Soybean)
+df <- na.omit(Soybean)
+set.seed(123)
+idx <- createDataPartition(df$Class, p = 0.7, list = FALSE)
+train <- df[idx, ]
+test  <- df[-idx, ]
+train$Class <- droplevels(train$Class)
+test$Class  <- droplevels(test$Class)
+model <- svm(Class ~ ., data = train, kernel = "radial") 
+preds <- predict(model, test)
+confusionMatrix(preds, test$Class)
+
+
+#Preprocessing
+library(mlbench)
+library(caret)
+data(Soybean)
+na_percent <- colMeans(is.na(Soybean))
+Soybean <- Soybean[, na_percent < 0.2]
+Soybean <- na.omit(Soybean)
+dummies <- dummyVars(Class ~ ., data = Soybean)
+Soybean <- data.frame(
+  predict(dummies, Soybean),
+  Class = Soybean$Class
+)
+features <- names(Soybean) != "Class"
+Soybean[, features] <- scale(Soybean[, features])
+set.seed(123)
+train_index <- createDataPartition(Soybean$Class, p = 0.7, list = FALSE)
+train_data <- Soybean[train_index, ]
+test_data  <- Soybean[-train_index, ]
+dim(train_data)
+dim(test_data)	
